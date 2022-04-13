@@ -84,7 +84,7 @@ class DriftSample extends StatelessWidget {
                       onPressed: () async {
                         final list = await database.allTodoEntries;
                         if (list.isNotEmpty) {
-                          await database.deleteTodo(list[list.length - 1].id);
+                          await database.deleteTodo(list[list.length - 1]);
                         }
                       },
                     ),
