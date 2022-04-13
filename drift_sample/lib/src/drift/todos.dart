@@ -29,16 +29,16 @@ class MyDatabase extends _$MyDatabase {
     return into(todos).insert(TodosCompanion(content: Value(content)));
   }
 
-  Future<void> deleteTodo(int id) {
-    return (delete(todos)..where((tbl) => tbl.id.equals(id))).go();
-  }
-
   Future<int> updateTodo(Todo todo, String content) {
     return (update(todos)..where((tbl) => tbl.id.equals(todo.id))).write(
       TodosCompanion(
         content: Value(content),
       ),
     );
+  }
+
+  Future<void> deleteTodo(int id) {
+    return (delete(todos)..where((tbl) => tbl.id.equals(id))).go();
   }
 }
 
