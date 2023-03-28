@@ -8,9 +8,9 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({
-    Key? key,
+    super.key,
     required this.database,
-  }) : super(key: key);
+  });
 
   final MyDatabase database;
 
@@ -24,9 +24,9 @@ class MyApp extends StatelessWidget {
 
 class DriftSample extends StatelessWidget {
   const DriftSample({
-    Key? key,
+    super.key,
     required this.database,
-  }) : super(key: key);
+  });
 
   final MyDatabase database;
 

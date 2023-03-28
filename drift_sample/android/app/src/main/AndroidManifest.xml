@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.drift_sample">
+    package="com.zerokaraapp.mirror_todo">
    <application
-        android:label="drift_sample"
+        android:label="mirror_todo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

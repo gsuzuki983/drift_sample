@@ -1,4 +1,4 @@
-package com.example.drift_sample
+package com.zerokaraapp.mirror_todo
 
 import io.flutter.embedding.android.FlutterActivity
 
