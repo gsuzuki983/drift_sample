@@ -47,12 +47,14 @@ class DriftSample extends StatelessWidget {
                   }
                   return ListView.builder(
                     itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) => TextButton(
-                      child: Text(snapshot.data![index].content),
-                      onPressed: () async {
-                        await database.updateTodo(
-                          snapshot.data![index],
-                          'updated',
+                    itemBuilder: (context, index) => CheckboxListTile(
+                      title: Text(snapshot.data![index].content),
+                      value: snapshot.data![index].isChecked,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      onChanged: (isChecked) async {
+                        await database.toggleIsChecked(
+                          todo: snapshot.data![index],
+                          isChecked: isChecked!,
                         );
                       },
                     ),

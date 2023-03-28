@@ -9,7 +9,8 @@ part 'todos.g.dart';
 
 class Todos extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get content => text()();
+  TextColumn get content => text().withLength(min: 1, max: 20)();
+  BoolColumn get isChecked => boolean().withDefault(const Constant(false))();
 }
 
 @DriftDatabase(tables: [Todos])
@@ -27,6 +28,14 @@ class MyDatabase extends _$MyDatabase {
 
   Future<int> addTodo(String content) {
     return into(todos).insert(TodosCompanion(content: Value(content)));
+  }
+
+  Future<int> toggleIsChecked({required Todo todo, required bool isChecked}) {
+    return (update(todos)..where((tbl) => tbl.id.equals(todo.id))).write(
+      TodosCompanion(
+        isChecked: Value(isChecked),
+      ),
+    );
   }
 
   Future<int> updateTodo(Todo todo, String content) {

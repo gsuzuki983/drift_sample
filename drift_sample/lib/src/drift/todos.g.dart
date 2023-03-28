@@ -10,7 +10,8 @@ part of 'todos.dart';
 class Todo extends DataClass implements Insertable<Todo> {
   final int id;
   final String content;
-  Todo({required this.id, required this.content});
+  final bool isChecked;
+  Todo({required this.id, required this.content, required this.isChecked});
   factory Todo.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Todo(
@@ -18,6 +19,8 @@ class Todo extends DataClass implements Insertable<Todo> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       content: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}content'])!,
+      isChecked: const BoolType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_checked'])!,
     );
   }
   @override
@@ -25,6 +28,7 @@ class Todo extends DataClass implements Insertable<Todo> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['content'] = Variable<String>(content);
+    map['is_checked'] = Variable<bool>(isChecked);
     return map;
   }
 
@@ -32,6 +36,7 @@ class Todo extends DataClass implements Insertable<Todo> {
     return TodosCompanion(
       id: Value(id),
       content: Value(content),
+      isChecked: Value(isChecked),
     );
   }
 
@@ -41,6 +46,7 @@ class Todo extends DataClass implements Insertable<Todo> {
     return Todo(
       id: serializer.fromJson<int>(json['id']),
       content: serializer.fromJson<String>(json['content']),
+      isChecked: serializer.fromJson<bool>(json['isChecked']),
     );
   }
   @override
@@ -49,55 +55,68 @@ class Todo extends DataClass implements Insertable<Todo> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'content': serializer.toJson<String>(content),
+      'isChecked': serializer.toJson<bool>(isChecked),
     };
   }
 
-  Todo copyWith({int? id, String? content}) => Todo(
+  Todo copyWith({int? id, String? content, bool? isChecked}) => Todo(
         id: id ?? this.id,
         content: content ?? this.content,
+        isChecked: isChecked ?? this.isChecked,
       );
   @override
   String toString() {
     return (StringBuffer('Todo(')
           ..write('id: $id, ')
-          ..write('content: $content')
+          ..write('content: $content, ')
+          ..write('isChecked: $isChecked')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, content);
+  int get hashCode => Object.hash(id, content, isChecked);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Todo && other.id == this.id && other.content == this.content);
+      (other is Todo &&
+          other.id == this.id &&
+          other.content == this.content &&
+          other.isChecked == this.isChecked);
 }
 
 class TodosCompanion extends UpdateCompanion<Todo> {
   final Value<int> id;
   final Value<String> content;
+  final Value<bool> isChecked;
   const TodosCompanion({
     this.id = const Value.absent(),
     this.content = const Value.absent(),
+    this.isChecked = const Value.absent(),
   });
   TodosCompanion.insert({
     this.id = const Value.absent(),
     required String content,
+    this.isChecked = const Value.absent(),
   }) : content = Value(content);
   static Insertable<Todo> custom({
     Expression<int>? id,
     Expression<String>? content,
+    Expression<bool>? isChecked,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (content != null) 'content': content,
+      if (isChecked != null) 'is_checked': isChecked,
     });
   }
 
-  TodosCompanion copyWith({Value<int>? id, Value<String>? content}) {
+  TodosCompanion copyWith(
+      {Value<int>? id, Value<String>? content, Value<bool>? isChecked}) {
     return TodosCompanion(
       id: id ?? this.id,
       content: content ?? this.content,
+      isChecked: isChecked ?? this.isChecked,
     );
   }
 
@@ -110,6 +129,9 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (isChecked.present) {
+      map['is_checked'] = Variable<bool>(isChecked.value);
+    }
     return map;
   }
 
@@ -117,7 +139,8 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   String toString() {
     return (StringBuffer('TodosCompanion(')
           ..write('id: $id, ')
-          ..write('content: $content')
+          ..write('content: $content, ')
+          ..write('isChecked: $isChecked')
           ..write(')'))
         .toString();
   }
@@ -134,14 +157,25 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
       'id', aliasedName, false,
       type: const IntType(),
       requiredDuringInsert: false,
-      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT',);
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _contentMeta = const VerificationMeta('content');
   @override
   late final GeneratedColumn<String?> content = GeneratedColumn<String?>(
       'content', aliasedName, false,
-      type: const StringType(), requiredDuringInsert: true,);
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 20),
+      type: const StringType(),
+      requiredDuringInsert: true);
+  final VerificationMeta _isCheckedMeta = const VerificationMeta('isChecked');
   @override
-  List<GeneratedColumn> get $columns => [id, content];
+  late final GeneratedColumn<bool?> isChecked = GeneratedColumn<bool?>(
+      'is_checked', aliasedName, false,
+      type: const BoolType(),
+      requiredDuringInsert: false,
+      defaultConstraints: 'CHECK (is_checked IN (0, 1))',
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [id, content, isChecked];
   @override
   String get aliasedName => _alias ?? 'todos';
   @override
@@ -156,9 +190,13 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
     }
     if (data.containsKey('content')) {
       context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content']!, _contentMeta),);
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
     } else if (isInserting) {
       context.missing(_contentMeta);
+    }
+    if (data.containsKey('is_checked')) {
+      context.handle(_isCheckedMeta,
+          isChecked.isAcceptableOrUnknown(data['is_checked']!, _isCheckedMeta));
     }
     return context;
   }
@@ -168,7 +206,7 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   @override
   Todo map(Map<String, dynamic> data, {String? tablePrefix}) {
     return Todo.fromData(data,
-        prefix: tablePrefix != null ? '$tablePrefix.' : null,);
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
