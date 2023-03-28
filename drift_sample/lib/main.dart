@@ -32,6 +32,7 @@ class DriftSample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = TextEditingController();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -62,6 +63,18 @@ class DriftSample extends StatelessWidget {
                 },
               ),
             ),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: 'チェックリストに追加',
+              ),
+              onSubmitted: (text) async {
+                await database.addTodo(
+                  content: text,
+                );
+                controller.clear();
+              },
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -72,7 +85,7 @@ class DriftSample extends StatelessWidget {
                       child: const Text('Add'),
                       onPressed: () async {
                         await database.addTodo(
-                          'test test test',
+                          content: 'test test test',
                         );
                       },
                     ),
@@ -86,7 +99,9 @@ class DriftSample extends StatelessWidget {
                       onPressed: () async {
                         final list = await database.allTodoEntries;
                         if (list.isNotEmpty) {
-                          await database.deleteTodo(list[list.length - 1]);
+                          await database.deleteTodo(
+                            todo: list[list.length - 1],
+                          );
                         }
                       },
                     ),

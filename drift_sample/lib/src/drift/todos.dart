@@ -26,7 +26,7 @@ class MyDatabase extends _$MyDatabase {
 
   Future<List<Todo>> get allTodoEntries => select(todos).get();
 
-  Future<int> addTodo(String content) {
+  Future<int> addTodo({required String content}) {
     return into(todos).insert(TodosCompanion(content: Value(content)));
   }
 
@@ -38,7 +38,7 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
-  Future<int> updateTodo(Todo todo, String content) {
+  Future<int> updateTodo({required Todo todo, required String content}) {
     return (update(todos)..where((tbl) => tbl.id.equals(todo.id))).write(
       TodosCompanion(
         content: Value(content),
@@ -46,7 +46,7 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
-  Future<void> deleteTodo(Todo todo) {
+  Future<void> deleteTodo({required Todo todo}) {
     return (delete(todos)..where((tbl) => tbl.id.equals(todo.id))).go();
   }
 }
