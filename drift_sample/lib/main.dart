@@ -37,18 +37,21 @@ class DriftSample extends StatefulWidget {
 class _DriftSampleState extends State<DriftSample> {
   late TextEditingController _categoryController;
   late TextEditingController _todoController;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _categoryController = TextEditingController();
     _todoController = TextEditingController();
+    _pageController = PageController();
   }
 
   @override
   void dispose() {
     _categoryController.dispose();
     _todoController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -81,6 +84,7 @@ class _DriftSampleState extends State<DriftSample> {
                   }
                   final categories = snapshot.data!;
                   return PageView.builder(
+                    controller: _pageController,
                     itemCount: categories.length,
                     itemBuilder: (context, index) {
                       final category = categories[index];
@@ -132,10 +136,12 @@ class _DriftSampleState extends State<DriftSample> {
                 hintText: 'Todo名',
               ),
               onSubmitted: (text) async {
-                // カテゴリIDを適切に指定してください
+                final currentCategory = (await widget.database
+                    .watchCategories()
+                    .first)[_pageController.page!.round()];
                 await widget.database.addTodo(
                   content: text,
-                  categoryId: 1, // 仮のカテゴリID
+                  categoryId: currentCategory.id,
                 );
                 _todoController.clear();
               },
