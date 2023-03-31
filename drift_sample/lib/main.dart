@@ -140,42 +140,6 @@ class _DriftSampleState extends State<DriftSample> {
                 _todoController.clear();
               },
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ElevatedButton(
-                      child: const Text('Add'),
-                      onPressed: () async {
-                        // カテゴリIDを適切に指定してください
-                        await widget.database.addTodo(
-                          content: 'test test test',
-                          categoryId: 1, // 仮のカテゴリID
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ElevatedButton(
-                      child: const Text('Remove'),
-                      onPressed: () async {
-                        final list = await widget.database.allTodoEntries;
-                        if (list.isNotEmpty) {
-                          await widget.database.deleteTodo(
-                            todo: list[list.length - 1],
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
