@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class DriftSample extends StatelessWidget {
+class DriftSample extends StatefulWidget {
   const DriftSample({
     super.key,
     required this.database,
@@ -31,48 +31,113 @@ class DriftSample extends StatelessWidget {
   final MyDatabase database;
 
   @override
+  _DriftSampleState createState() => _DriftSampleState();
+}
+
+class _DriftSampleState extends State<DriftSample> {
+  late TextEditingController _categoryController;
+  late TextEditingController _todoController;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoryController = TextEditingController();
+    _todoController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    _todoController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController();
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Todo App'),
+      ),
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            TextField(
+              controller: _categoryController,
+              decoration: const InputDecoration(
+                labelText: 'カテゴリ追加',
+                hintText: 'カテゴリ名',
+              ),
+              onSubmitted: (text) async {
+                await widget.database.addCategory(name: text);
+                _categoryController.clear();
+              },
+            ),
             Expanded(
-              child: StreamBuilder(
-                stream: database.watchEntries(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<List<Todo>> snapshot) {
+              child: StreamBuilder<List<Categorie>>(
+                stream: widget.database.watchCategories(),
+                builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const CircularProgressIndicator();
                   }
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) => CheckboxListTile(
-                      title: Text(snapshot.data![index].content),
-                      value: snapshot.data![index].isChecked,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      onChanged: (isChecked) async {
-                        await database.toggleIsChecked(
-                          todo: snapshot.data![index],
-                          isChecked: isChecked!,
-                        );
-                      },
-                    ),
+                  final categories = snapshot.data!;
+                  return PageView.builder(
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return Column(
+                        children: [
+                          Text(category.name),
+                          Expanded(
+                            child: StreamBuilder<List<Todo>>(
+                              stream: widget.database
+                                  .watchEntriesByCategory(category.id),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+                                final todos = snapshot.data!;
+                                return ListView.builder(
+                                  itemCount: todos.length,
+                                  itemBuilder: (context, index) {
+                                    final todo = todos[index];
+                                    return CheckboxListTile(
+                                      title: Text(todo.content),
+                                      value: todo.isChecked,
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                      onChanged: (isChecked) async {
+                                        await widget.database.toggleIsChecked(
+                                          todo: todo,
+                                          isChecked: isChecked!,
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
             ),
             TextField(
-              controller: controller,
+              controller: _todoController,
               decoration: const InputDecoration(
-                hintText: 'チェックリストに追加',
+                labelText: 'チェックリストに追加',
+                hintText: 'Todo名',
               ),
               onSubmitted: (text) async {
-                await database.addTodo(
+                // カテゴリIDを適切に指定してください
+                await widget.database.addTodo(
                   content: text,
+                  categoryId: 1, // 仮のカテゴリID
                 );
-                controller.clear();
+                _todoController.clear();
               },
             ),
             Row(
@@ -84,8 +149,10 @@ class DriftSample extends StatelessWidget {
                     child: ElevatedButton(
                       child: const Text('Add'),
                       onPressed: () async {
-                        await database.addTodo(
+                        // カテゴリIDを適切に指定してください
+                        await widget.database.addTodo(
                           content: 'test test test',
+                          categoryId: 1, // 仮のカテゴリID
                         );
                       },
                     ),
@@ -95,11 +162,11 @@ class DriftSample extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: ElevatedButton(
-                      child: const Text('remove'),
+                      child: const Text('Remove'),
                       onPressed: () async {
-                        final list = await database.allTodoEntries;
+                        final list = await widget.database.allTodoEntries;
                         if (list.isNotEmpty) {
-                          await database.deleteTodo(
+                          await widget.database.deleteTodo(
                             todo: list[list.length - 1],
                           );
                         }

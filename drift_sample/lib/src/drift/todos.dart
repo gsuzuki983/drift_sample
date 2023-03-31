@@ -7,27 +7,45 @@ import 'package:path_provider/path_provider.dart';
 
 part 'todos.g.dart';
 
+class Categories extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 20)();
+}
+
 class Todos extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get content => text().withLength(min: 1, max: 20)();
   BoolColumn get isChecked => boolean().withDefault(const Constant(false))();
+  IntColumn get categoryId =>
+      integer().customConstraint('REFERENCES categories(id)')();
 }
 
-@DriftDatabase(tables: [Todos])
+@DriftDatabase(tables: [Categories, Todos])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
-  Stream<List<Todo>> watchEntries() {
-    return (select(todos)).watch();
+  Stream<List<Categorie>> watchCategories() {
+    return (select(categories)).watch();
+  }
+
+  Stream<List<Todo>> watchEntriesByCategory(int categoryId) {
+    return (select(todos)..where((tbl) => tbl.categoryId.equals(categoryId)))
+        .watch();
   }
 
   Future<List<Todo>> get allTodoEntries => select(todos).get();
 
-  Future<int> addTodo({required String content}) {
-    return into(todos).insert(TodosCompanion(content: Value(content)));
+  Future<int> addCategory({required String name}) {
+    return into(categories).insert(CategoriesCompanion(name: Value(name)));
+  }
+
+  Future<int> addTodo({required String content, required int categoryId}) {
+    return into(todos).insert(
+      TodosCompanion(content: Value(content), categoryId: Value(categoryId)),
+    );
   }
 
   Future<int> toggleIsChecked({required Todo todo, required bool isChecked}) {
