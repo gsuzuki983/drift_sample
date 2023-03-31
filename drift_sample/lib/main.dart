@@ -101,21 +101,51 @@ class _DriftSampleState extends State<DriftSample> {
                                   return const CircularProgressIndicator();
                                 }
                                 final todos = snapshot.data!;
+
                                 return ListView.builder(
                                   itemCount: todos.length,
                                   itemBuilder: (context, index) {
                                     final todo = todos[index];
-                                    return CheckboxListTile(
-                                      title: Text(todo.content),
-                                      value: todo.isChecked,
-                                      controlAffinity:
-                                          ListTileControlAffinity.leading,
-                                      onChanged: (isChecked) async {
-                                        await widget.database.toggleIsChecked(
-                                          todo: todo,
-                                          isChecked: isChecked!,
+                                    return Dismissible(
+                                      key: UniqueKey(),
+                                      onDismissed: (direction) async {
+                                        await widget.database
+                                            .deleteTodo(todo: todo);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  '${todo.content}を削除しました')),
                                         );
                                       },
+                                      background: Container(
+                                        color: Colors.red,
+                                        alignment: Alignment.centerLeft,
+                                        padding:
+                                            const EdgeInsets.only(left: 20),
+                                        child: const Icon(Icons.delete,
+                                            color: Colors.white),
+                                      ),
+                                      secondaryBackground: Container(
+                                        color: Colors.red,
+                                        alignment: Alignment.centerRight,
+                                        padding:
+                                            const EdgeInsets.only(right: 20),
+                                        child: const Icon(Icons.delete,
+                                            color: Colors.white),
+                                      ),
+                                      child: CheckboxListTile(
+                                        title: Text(todo.content),
+                                        value: todo.isChecked,
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        onChanged: (isChecked) async {
+                                          await widget.database.toggleIsChecked(
+                                            todo: todo,
+                                            isChecked: isChecked!,
+                                          );
+                                        },
+                                      ),
                                     );
                                   },
                                 );
