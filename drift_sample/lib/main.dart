@@ -1,4 +1,4 @@
-import 'package:drift_sample/src/drift/todos.dart';
+import 'package:drift_sample/services/database_service.dart';
 import 'package:flutter/material.dart';
 
 void main() {
