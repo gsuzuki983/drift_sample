@@ -10,10 +10,10 @@ class CheckListScreen extends StatefulWidget {
   final MyDatabase database;
 
   @override
-  _CheckListScreenState createState() => _CheckListScreenState();
+  CheckListScreenState createState() => CheckListScreenState();
 }
 
-class _CheckListScreenState extends State<CheckListScreen> {
+class CheckListScreenState extends State<CheckListScreen> {
   late TextEditingController _categoryController;
   late TextEditingController _todoController;
   late PageController _pageController;
