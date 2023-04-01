@@ -14,7 +14,8 @@ class Categories extends Table {
 
 class Todos extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get content => text().withLength(min: 1, max: 20)();
+  TextColumn get content => text().withLength(min: 1, max: 10)();
+  TextColumn get description => text().nullable().withLength(min: 1, max: 20)();
   BoolColumn get isChecked => boolean().withDefault(const Constant(false))();
   IntColumn get categoryId =>
       integer().customConstraint('REFERENCES categories(id)')();
@@ -42,9 +43,17 @@ class MyDatabase extends _$MyDatabase {
     return into(categories).insert(CategoriesCompanion(name: Value(name)));
   }
 
-  Future<int> addTodo({required String content, required int categoryId}) {
+  Future<int> addTodo({
+    required String content,
+    required int categoryId,
+    String? description,
+  }) {
     return into(todos).insert(
-      TodosCompanion(content: Value(content), categoryId: Value(categoryId)),
+      TodosCompanion(
+        content: Value(content),
+        categoryId: Value(categoryId),
+        description: Value(description),
+      ),
     );
   }
 
