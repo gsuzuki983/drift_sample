@@ -38,7 +38,7 @@ class MyDatabase extends _$MyDatabase {
   }
 
   Future<List<Todo>> get allTodoEntries => select(todos).get();
-
+  Future<List<Categorie>> get allCategories => select(categories).get();
   Future<int> addCategory({required String name}) {
     return into(categories).insert(CategoriesCompanion(name: Value(name)));
   }
