@@ -64,17 +64,6 @@ class _DriftSampleState extends State<DriftSample> {
       body: SafeArea(
         child: Column(
           children: [
-            TextField(
-              controller: _categoryController,
-              decoration: const InputDecoration(
-                labelText: 'カテゴリ追加',
-                hintText: 'カテゴリ名',
-              ),
-              onSubmitted: (text) async {
-                await widget.database.addCategory(name: text);
-                _categoryController.clear();
-              },
-            ),
             Expanded(
               child: StreamBuilder<List<Categorie>>(
                 stream: widget.database.watchCategories(),
@@ -164,6 +153,17 @@ class _DriftSampleState extends State<DriftSample> {
                   );
                 },
               ),
+            ),
+            TextField(
+              controller: _categoryController,
+              decoration: const InputDecoration(
+                labelText: 'カテゴリ追加',
+                hintText: 'カテゴリ名',
+              ),
+              onSubmitted: (text) async {
+                await widget.database.addCategory(name: text);
+                _categoryController.clear();
+              },
             ),
             TextField(
               controller: _todoController,
