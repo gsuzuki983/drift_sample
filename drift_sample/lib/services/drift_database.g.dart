@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'database_service.dart';
+part of 'drift_database.dart';
 
 // **************************************************************************
 // MoorGenerator

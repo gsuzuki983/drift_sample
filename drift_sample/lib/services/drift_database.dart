@@ -7,7 +7,7 @@ import 'package:drift_sample/models/todo.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-part 'database_service.g.dart';
+part 'drift_database.g.dart';
 
 @DriftDatabase(tables: [Categories, Todos])
 class MyDatabase extends _$MyDatabase {
