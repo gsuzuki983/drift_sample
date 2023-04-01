@@ -7,13 +7,13 @@ part of 'drift_database.dart';
 // **************************************************************************
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
-class Categorie extends DataClass implements Insertable<Categorie> {
+class UseCase extends DataClass implements Insertable<UseCase> {
   final int id;
   final String name;
-  Categorie({required this.id, required this.name});
-  factory Categorie.fromData(Map<String, dynamic> data, {String? prefix}) {
+  UseCase({required this.id, required this.name});
+  factory UseCase.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    return Categorie(
+    return UseCase(
       id: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       name: const StringType()
@@ -28,17 +28,17 @@ class Categorie extends DataClass implements Insertable<Categorie> {
     return map;
   }
 
-  CategoriesCompanion toCompanion(bool nullToAbsent) {
-    return CategoriesCompanion(
+  UseCasesCompanion toCompanion(bool nullToAbsent) {
+    return UseCasesCompanion(
       id: Value(id),
       name: Value(name),
     );
   }
 
-  factory Categorie.fromJson(Map<String, dynamic> json,
+  factory UseCase.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Categorie(
+    return UseCase(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
     );
@@ -52,13 +52,13 @@ class Categorie extends DataClass implements Insertable<Categorie> {
     };
   }
 
-  Categorie copyWith({int? id, String? name}) => Categorie(
+  UseCase copyWith({int? id, String? name}) => UseCase(
         id: id ?? this.id,
         name: name ?? this.name,
       );
   @override
   String toString() {
-    return (StringBuffer('Categorie(')
+    return (StringBuffer('UseCase(')
           ..write('id: $id, ')
           ..write('name: $name')
           ..write(')'))
@@ -70,21 +70,21 @@ class Categorie extends DataClass implements Insertable<Categorie> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Categorie && other.id == this.id && other.name == this.name);
+      (other is UseCase && other.id == this.id && other.name == this.name);
 }
 
-class CategoriesCompanion extends UpdateCompanion<Categorie> {
+class UseCasesCompanion extends UpdateCompanion<UseCase> {
   final Value<int> id;
   final Value<String> name;
-  const CategoriesCompanion({
+  const UseCasesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
   });
-  CategoriesCompanion.insert({
+  UseCasesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
   }) : name = Value(name);
-  static Insertable<Categorie> custom({
+  static Insertable<UseCase> custom({
     Expression<int>? id,
     Expression<String>? name,
   }) {
@@ -94,8 +94,8 @@ class CategoriesCompanion extends UpdateCompanion<Categorie> {
     });
   }
 
-  CategoriesCompanion copyWith({Value<int>? id, Value<String>? name}) {
-    return CategoriesCompanion(
+  UseCasesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return UseCasesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
     );
@@ -115,7 +115,7 @@ class CategoriesCompanion extends UpdateCompanion<Categorie> {
 
   @override
   String toString() {
-    return (StringBuffer('CategoriesCompanion(')
+    return (StringBuffer('UseCasesCompanion(')
           ..write('id: $id, ')
           ..write('name: $name')
           ..write(')'))
@@ -123,12 +123,11 @@ class CategoriesCompanion extends UpdateCompanion<Categorie> {
   }
 }
 
-class $CategoriesTable extends Categories
-    with TableInfo<$CategoriesTable, Categorie> {
+class $UseCasesTable extends UseCases with TableInfo<$UseCasesTable, UseCase> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $CategoriesTable(this.attachedDatabase, [this._alias]);
+  $UseCasesTable(this.attachedDatabase, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
@@ -147,11 +146,11 @@ class $CategoriesTable extends Categories
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'categories';
+  String get aliasedName => _alias ?? 'use_cases';
   @override
-  String get actualTableName => 'categories';
+  String get actualTableName => 'use_cases';
   @override
-  VerificationContext validateIntegrity(Insertable<Categorie> instance,
+  VerificationContext validateIntegrity(Insertable<UseCase> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -170,32 +169,32 @@ class $CategoriesTable extends Categories
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Categorie map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Categorie.fromData(data,
+  UseCase map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return UseCase.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
-  $CategoriesTable createAlias(String alias) {
-    return $CategoriesTable(attachedDatabase, alias);
+  $UseCasesTable createAlias(String alias) {
+    return $UseCasesTable(attachedDatabase, alias);
   }
 }
 
-class Todo extends DataClass implements Insertable<Todo> {
+class InventoryItem extends DataClass implements Insertable<InventoryItem> {
   final int id;
   final String content;
   final String? description;
   final bool isChecked;
   final int categoryId;
-  Todo(
+  InventoryItem(
       {required this.id,
       required this.content,
       this.description,
       required this.isChecked,
       required this.categoryId});
-  factory Todo.fromData(Map<String, dynamic> data, {String? prefix}) {
+  factory InventoryItem.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    return Todo(
+    return InventoryItem(
       id: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       content: const StringType()
@@ -221,8 +220,8 @@ class Todo extends DataClass implements Insertable<Todo> {
     return map;
   }
 
-  TodosCompanion toCompanion(bool nullToAbsent) {
-    return TodosCompanion(
+  InventoryItemsCompanion toCompanion(bool nullToAbsent) {
+    return InventoryItemsCompanion(
       id: Value(id),
       content: Value(content),
       description: description == null && nullToAbsent
@@ -233,10 +232,10 @@ class Todo extends DataClass implements Insertable<Todo> {
     );
   }
 
-  factory Todo.fromJson(Map<String, dynamic> json,
+  factory InventoryItem.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Todo(
+    return InventoryItem(
       id: serializer.fromJson<int>(json['id']),
       content: serializer.fromJson<String>(json['content']),
       description: serializer.fromJson<String?>(json['description']),
@@ -256,13 +255,13 @@ class Todo extends DataClass implements Insertable<Todo> {
     };
   }
 
-  Todo copyWith(
+  InventoryItem copyWith(
           {int? id,
           String? content,
           String? description,
           bool? isChecked,
           int? categoryId}) =>
-      Todo(
+      InventoryItem(
         id: id ?? this.id,
         content: content ?? this.content,
         description: description ?? this.description,
@@ -271,7 +270,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       );
   @override
   String toString() {
-    return (StringBuffer('Todo(')
+    return (StringBuffer('InventoryItem(')
           ..write('id: $id, ')
           ..write('content: $content, ')
           ..write('description: $description, ')
@@ -287,7 +286,7 @@ class Todo extends DataClass implements Insertable<Todo> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Todo &&
+      (other is InventoryItem &&
           other.id == this.id &&
           other.content == this.content &&
           other.description == this.description &&
@@ -295,20 +294,20 @@ class Todo extends DataClass implements Insertable<Todo> {
           other.categoryId == this.categoryId);
 }
 
-class TodosCompanion extends UpdateCompanion<Todo> {
+class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
   final Value<int> id;
   final Value<String> content;
   final Value<String?> description;
   final Value<bool> isChecked;
   final Value<int> categoryId;
-  const TodosCompanion({
+  const InventoryItemsCompanion({
     this.id = const Value.absent(),
     this.content = const Value.absent(),
     this.description = const Value.absent(),
     this.isChecked = const Value.absent(),
     this.categoryId = const Value.absent(),
   });
-  TodosCompanion.insert({
+  InventoryItemsCompanion.insert({
     this.id = const Value.absent(),
     required String content,
     this.description = const Value.absent(),
@@ -316,7 +315,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     required int categoryId,
   })  : content = Value(content),
         categoryId = Value(categoryId);
-  static Insertable<Todo> custom({
+  static Insertable<InventoryItem> custom({
     Expression<int>? id,
     Expression<String>? content,
     Expression<String?>? description,
@@ -332,13 +331,13 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     });
   }
 
-  TodosCompanion copyWith(
+  InventoryItemsCompanion copyWith(
       {Value<int>? id,
       Value<String>? content,
       Value<String?>? description,
       Value<bool>? isChecked,
       Value<int>? categoryId}) {
-    return TodosCompanion(
+    return InventoryItemsCompanion(
       id: id ?? this.id,
       content: content ?? this.content,
       description: description ?? this.description,
@@ -370,7 +369,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
 
   @override
   String toString() {
-    return (StringBuffer('TodosCompanion(')
+    return (StringBuffer('InventoryItemsCompanion(')
           ..write('id: $id, ')
           ..write('content: $content, ')
           ..write('description: $description, ')
@@ -381,11 +380,12 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   }
 }
 
-class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
+class $InventoryItemsTable extends InventoryItems
+    with TableInfo<$InventoryItemsTable, InventoryItem> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TodosTable(this.attachedDatabase, [this._alias]);
+  $InventoryItemsTable(this.attachedDatabase, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
@@ -429,11 +429,11 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   List<GeneratedColumn> get $columns =>
       [id, content, description, isChecked, categoryId];
   @override
-  String get aliasedName => _alias ?? 'todos';
+  String get aliasedName => _alias ?? 'inventory_items';
   @override
-  String get actualTableName => 'todos';
+  String get actualTableName => 'inventory_items';
   @override
-  VerificationContext validateIntegrity(Insertable<Todo> instance,
+  VerificationContext validateIntegrity(Insertable<InventoryItem> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -470,23 +470,24 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Todo map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Todo.fromData(data,
+  InventoryItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return InventoryItem.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
-  $TodosTable createAlias(String alias) {
-    return $TodosTable(attachedDatabase, alias);
+  $InventoryItemsTable createAlias(String alias) {
+    return $InventoryItemsTable(attachedDatabase, alias);
   }
 }
 
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
-  late final $CategoriesTable categories = $CategoriesTable(this);
-  late final $TodosTable todos = $TodosTable(this);
+  late final $UseCasesTable useCases = $UseCasesTable(this);
+  late final $InventoryItemsTable inventoryItems = $InventoryItemsTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [categories, todos];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [useCases, inventoryItems];
 }

@@ -14,31 +14,31 @@ class CheckListScreen extends StatefulWidget {
 }
 
 class CheckListScreenState extends State<CheckListScreen> {
-  late TextEditingController _categoryController;
-  late TextEditingController _todoController;
+  late TextEditingController _useCaseController;
+  late TextEditingController _inventoryItemController;
   late PageController _pageController;
-  late List<Categorie> _categories;
+  late List<UseCase> _useCases;
   int _selectedCategoryIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _categoryController = TextEditingController();
-    _todoController = TextEditingController();
+    _useCaseController = TextEditingController();
+    _inventoryItemController = TextEditingController();
     _pageController = PageController();
-    _categories = [];
-    _loadCategories();
+    _useCases = [];
+    _loadUseCases();
   }
 
-  Future<void> _loadCategories() async {
-    _categories = await widget.database.allCategories;
+  Future<void> _loadUseCases() async {
+    _useCases = await widget.database.allUseCases;
     setState(() {});
   }
 
   @override
   void dispose() {
-    _categoryController.dispose();
-    _todoController.dispose();
+    _useCaseController.dispose();
+    _inventoryItemController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -47,9 +47,9 @@ class CheckListScreenState extends State<CheckListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _categories.isEmpty
+        title: _useCases.isEmpty
             ? const Text('No Category')
-            : Text(_categories[_selectedCategoryIndex].name),
+            : Text(_useCases[_selectedCategoryIndex].name),
         centerTitle: true,
         actions: const [
           TextButton(
@@ -65,42 +65,45 @@ class CheckListScreenState extends State<CheckListScreen> {
         child: Column(
           children: [
             Expanded(
-              child: _categories.isEmpty
+              child: _useCases.isEmpty
                   ? const Center(
                       child: Text('カテゴリがありません'),
                     )
                   : PageView.builder(
                       controller: _pageController,
-                      itemCount: _categories.length,
+                      itemCount: _useCases.length,
                       itemBuilder: (context, index) {
-                        final category = _categories[index];
+                        final category = _useCases[index];
                         return Column(
                           children: [
                             Expanded(
-                              child: StreamBuilder<List<Todo>>(
+                              child: StreamBuilder<List<InventoryItem>>(
                                 stream: widget.database
-                                    .watchEntriesByCategory(category.id),
+                                    .watchEntriesByUseCase(category.id),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const CircularProgressIndicator();
                                   }
-                                  final todos = snapshot.data!;
+                                  final inventoryItems = snapshot.data!;
 
                                   return ListView.builder(
-                                    itemCount: todos.length,
+                                    itemCount: inventoryItems.length,
                                     itemBuilder: (context, index) {
-                                      final todo = todos[index];
+                                      final inventoryItem =
+                                          inventoryItems[index];
                                       return Dismissible(
                                         key: UniqueKey(),
                                         onDismissed: (direction) async {
                                           await widget.database
-                                              .deleteTodo(todo: todo);
+                                              .deleteInventoryItem(
+                                            inventoryItem: inventoryItem,
+                                          );
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                '${todo.content}を削除しました',
+                                                '${inventoryItem.content}を削除しました',
                                               ),
                                             ),
                                           );
@@ -126,14 +129,14 @@ class CheckListScreenState extends State<CheckListScreen> {
                                           ),
                                         ),
                                         child: CheckboxListTile(
-                                          title: Text(todo.content),
-                                          value: todo.isChecked,
+                                          title: Text(inventoryItem.content),
+                                          value: inventoryItem.isChecked,
                                           controlAffinity:
                                               ListTileControlAffinity.leading,
                                           onChanged: (isChecked) async {
                                             await widget.database
                                                 .toggleIsChecked(
-                                              todo: todo,
+                                              inventoryItem: inventoryItem,
                                               isChecked: isChecked!,
                                             );
                                           },
@@ -155,25 +158,25 @@ class CheckListScreenState extends State<CheckListScreen> {
                     ),
             ),
             TextField(
-              controller: _categoryController,
+              controller: _useCaseController,
               decoration: const InputDecoration(
                 labelText: 'カテゴリ追加',
                 hintText: 'カテゴリ名',
               ),
               onSubmitted: (text) async {
                 await widget.database.addCategory(name: text);
-                _categoryController.clear();
-                await _loadCategories();
+                _useCaseController.clear();
+                await _loadUseCases();
               },
             ),
             TextField(
-              controller: _todoController,
+              controller: _inventoryItemController,
               decoration: const InputDecoration(
                 labelText: 'チェックリストに追加',
                 hintText: 'Todo名',
               ),
               onSubmitted: (text) async {
-                if (_categories.isEmpty) {
+                if (_useCases.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
@@ -184,12 +187,12 @@ class CheckListScreenState extends State<CheckListScreen> {
                   return;
                 }
                 final currentCategory =
-                    _categories[_pageController.page!.round()];
-                await widget.database.addTodo(
+                    _useCases[_pageController.page!.round()];
+                await widget.database.addInventoryItem(
                   content: text,
                   categoryId: currentCategory.id,
                 );
-                _todoController.clear();
+                _inventoryItemController.clear();
               },
             ),
           ],

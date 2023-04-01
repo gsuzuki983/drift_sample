@@ -2,42 +2,46 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:drift_sample/models/category.dart';
-import 'package:drift_sample/models/todo.dart';
+import 'package:drift_sample/models/inventory_item.dart';
+import 'package:drift_sample/models/use_case.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 part 'drift_database.g.dart';
 
-@DriftDatabase(tables: [Categories, Todos])
+@DriftDatabase(tables: [UseCases, InventoryItems])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 2;
 
-  Stream<List<Categorie>> watchCategories() {
-    return (select(categories)).watch();
+  Stream<List<UseCase>> watchUseCases() {
+    return (select(useCases)).watch();
   }
 
-  Stream<List<Todo>> watchEntriesByCategory(int categoryId) {
-    return (select(todos)..where((tbl) => tbl.categoryId.equals(categoryId)))
+  Stream<List<InventoryItem>> watchEntriesByUseCase(int categoryId) {
+    return (select(inventoryItems)
+          ..where((tbl) => tbl.categoryId.equals(categoryId)))
         .watch();
   }
 
-  Future<List<Todo>> get allTodoEntries => select(todos).get();
-  Future<List<Categorie>> get allCategories => select(categories).get();
+  Future<List<InventoryItem>> get allInventoryItems =>
+      select(inventoryItems).get();
+
+  Future<List<UseCase>> get allUseCases => select(useCases).get();
+
   Future<int> addCategory({required String name}) {
-    return into(categories).insert(CategoriesCompanion(name: Value(name)));
+    return into(useCases).insert(UseCasesCompanion(name: Value(name)));
   }
 
-  Future<int> addTodo({
+  Future<int> addInventoryItem({
     required String content,
     required int categoryId,
     String? description,
   }) {
-    return into(todos).insert(
-      TodosCompanion(
+    return into(inventoryItems).insert(
+      InventoryItemsCompanion(
         content: Value(content),
         categoryId: Value(categoryId),
         description: Value(description),
@@ -45,24 +49,36 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
-  Future<int> toggleIsChecked({required Todo todo, required bool isChecked}) {
-    return (update(todos)..where((tbl) => tbl.id.equals(todo.id))).write(
-      TodosCompanion(
+  Future<int> toggleIsChecked({
+    required InventoryItem inventoryItem,
+    required bool isChecked,
+  }) {
+    return (update(inventoryItems)
+          ..where((tbl) => tbl.id.equals(inventoryItem.id)))
+        .write(
+      InventoryItemsCompanion(
         isChecked: Value(isChecked),
       ),
     );
   }
 
-  Future<int> updateTodo({required Todo todo, required String content}) {
-    return (update(todos)..where((tbl) => tbl.id.equals(todo.id))).write(
-      TodosCompanion(
+  Future<int> updateInventoryItem({
+    required InventoryItem inventoryItem,
+    required String content,
+  }) {
+    return (update(inventoryItems)
+          ..where((tbl) => tbl.id.equals(inventoryItem.id)))
+        .write(
+      InventoryItemsCompanion(
         content: Value(content),
       ),
     );
   }
 
-  Future<void> deleteTodo({required Todo todo}) {
-    return (delete(todos)..where((tbl) => tbl.id.equals(todo.id))).go();
+  Future<void> deleteInventoryItem({required InventoryItem inventoryItem}) {
+    return (delete(inventoryItems)
+          ..where((tbl) => tbl.id.equals(inventoryItem.id)))
+        .go();
   }
 }
 
