@@ -114,8 +114,10 @@ class _DriftSampleState extends State<DriftSample> {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
-                                              content: Text(
-                                                  '${todo.content}を削除しました')),
+                                            content: Text(
+                                              '${todo.content}を削除しました',
+                                            ),
+                                          ),
                                         );
                                       },
                                       background: Container(
@@ -123,16 +125,20 @@ class _DriftSampleState extends State<DriftSample> {
                                         alignment: Alignment.centerLeft,
                                         padding:
                                             const EdgeInsets.only(left: 20),
-                                        child: const Icon(Icons.delete,
-                                            color: Colors.white),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                       secondaryBackground: Container(
                                         color: Colors.red,
                                         alignment: Alignment.centerRight,
                                         padding:
                                             const EdgeInsets.only(right: 20),
-                                        child: const Icon(Icons.delete,
-                                            color: Colors.white),
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                       child: CheckboxListTile(
                                         title: Text(todo.content),
@@ -166,9 +172,20 @@ class _DriftSampleState extends State<DriftSample> {
                 hintText: 'Todo名',
               ),
               onSubmitted: (text) async {
-                final currentCategory = (await widget.database
-                    .watchCategories()
-                    .first)[_pageController.page!.round()];
+                final categories =
+                    await widget.database.watchCategories().first;
+                if (categories.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'カテゴリが存在しないため、todoは追加できません。カテゴリを新規追加してください。',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                final currentCategory =
+                    categories[_pageController.page!.round()];
                 await widget.database.addTodo(
                   content: text,
                   categoryId: currentCategory.id,
