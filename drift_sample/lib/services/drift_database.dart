@@ -30,33 +30,36 @@ class MyDatabase extends _$MyDatabase {
   }
 
   Stream<List<SituationWithUseCases>> get situationsWithUseCases {
-    return (select(situations)
-          ..orderBy([
-            (s) => OrderingTerm(expression: s.name),
-          ]))
-        .join([
-          leftOuterJoin(useCases, useCases.id.equalsExp(situations.id)),
-        ])
-        .watch()
-        .map((rows) {
-          final resultMap = <int, SituationWithUseCases>{};
+    final situationsWithUseCasesQuery = select(situations).join(
+      [
+        leftOuterJoin(useCases, useCases.situationId.equalsExp(situations.id)),
+      ],
+    )..orderBy([
+        OrderingTerm(expression: situations.id),
+        OrderingTerm(expression: useCases.id),
+      ]);
 
-          for (final row in rows) {
-            final situation = row.readTable(situations);
-            final useCase = row.readTable(useCases);
+    return situationsWithUseCasesQuery.watch().map((rows) {
+      final resultMap = <int, SituationWithUseCases>{};
 
-            if (resultMap.containsKey(situation.id)) {
-              resultMap[situation.id]?.useCases?.add(useCase);
-            } else {
-              resultMap[situation.id] = SituationWithUseCases(
-                situation: situation,
-                useCases: [useCase],
-              );
-            }
+      for (final row in rows) {
+        final situation = row.readTable(situations);
+        final useCase = row.readTableOrNull(useCases);
+
+        if (resultMap.containsKey(situation.id)) {
+          if (useCase != null) {
+            resultMap[situation.id]?.useCases?.add(useCase);
           }
+        } else {
+          resultMap[situation.id] = SituationWithUseCases(
+            situation: situation,
+            useCases: useCase != null ? [useCase] : [],
+          );
+        }
+      }
 
-          return resultMap.values.toList();
-        });
+      return resultMap.values.toList();
+    });
   }
 
   Future<List<InventoryItem>> get allInventoryItems =>
@@ -70,8 +73,10 @@ class MyDatabase extends _$MyDatabase {
     return id;
   }
 
-  Future<int> addUseCase(
-      {required String name, required int situationId}) async {
+  Future<int> addUseCase({
+    required String name,
+    required int situationId,
+  }) async {
     final id = await into(useCases)
         .insert(UseCasesCompanion.insert(name: name, situationId: situationId));
     return id;

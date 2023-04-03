@@ -13,13 +13,17 @@ class UseCaseListScreen extends StatefulWidget {
 
 class UseCaseListScreenState extends State<UseCaseListScreen> {
   late Stream<List<SituationWithUseCases>> _situationsWithUseCases;
-  late TextEditingController _useCaseController;
-  late List<Situation> _situations;
+  bool _loading = true;
+
   @override
   void initState() {
     super.initState();
     _situationsWithUseCases = widget.database.situationsWithUseCases;
-    _addInitialData();
+    _addInitialData().then((_) {
+      setState(() {
+        _loading = false;
+      });
+    });
   }
 
   Future<void> _addInitialData() async {
@@ -43,25 +47,27 @@ class UseCaseListScreenState extends State<UseCaseListScreen> {
       appBar: AppBar(
         title: const Text('シチュエーションとユースケース'),
       ),
-      body: StreamBuilder<List<SituationWithUseCases>>(
-        stream: _situationsWithUseCases,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final situationsWithUseCases = snapshot.data!;
-            return PageView.builder(
-              itemBuilder: (context, index) {
-                final situationWithUseCases = situationsWithUseCases[index];
-                return _buildUseCaseList(situationWithUseCases);
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : StreamBuilder<List<SituationWithUseCases>>(
+              stream: _situationsWithUseCases,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final situationsWithUseCases = snapshot.data!;
+                  return PageView.builder(
+                    itemBuilder: (context, index) {
+                      final situationWithUseCases =
+                          situationsWithUseCases[index];
+                      return _buildUseCaseList(situationWithUseCases);
+                    },
+                    itemCount: situationsWithUseCases.length,
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('エラー: ${snapshot.error}'));
+                }
+                return const Center(child: CircularProgressIndicator());
               },
-              itemCount: situationsWithUseCases.length,
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('エラー: ${snapshot.error}'));
-          }
-
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
+            ),
     );
   }
 
