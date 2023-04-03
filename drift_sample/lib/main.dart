@@ -1,6 +1,7 @@
 import 'package:drift_sample/services/drift_database.dart';
-import 'package:drift_sample/views/check_list.dart';
 import 'package:flutter/material.dart';
+
+import 'views/use_case_list_screen.dart';
 
 void main() {
   final database = MyDatabase();
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CheckListScreen(database: database),
+      home: UseCaseListScreen(database: database),
     );
   }
 }

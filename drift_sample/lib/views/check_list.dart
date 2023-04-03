@@ -164,7 +164,7 @@ class CheckListScreenState extends State<CheckListScreen> {
                 hintText: 'カテゴリ名',
               ),
               onSubmitted: (text) async {
-                await widget.database.addCategory(name: text);
+                await widget.database.addSituation(name: text);
                 _useCaseController.clear();
                 await _loadUseCases();
               },
@@ -190,7 +190,8 @@ class CheckListScreenState extends State<CheckListScreen> {
                     _useCases[_pageController.page!.round()];
                 await widget.database.addInventoryItem(
                   content: text,
-                  categoryId: currentCategory.id,
+                  situationId: currentCategory.id,
+                  useCaseId: 1,
                 );
                 _inventoryItemController.clear();
               },
